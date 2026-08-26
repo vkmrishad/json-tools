@@ -319,6 +319,53 @@ h1, h2, h3, h4 { font-weight: 700; color: var(--text-primary); }
   transform: translateY(-1px);
 }
 
+/* GitHub Star Pill Button */
+.github-star-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  height: 38px;
+  border-radius: var(--radius-full);
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: 12.5px;
+  font-weight: 600;
+  text-decoration: none !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  transition: all var(--transition-fast);
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+[data-theme='light'] .github-star-btn {
+  background: rgba(255, 255, 255, 0.85);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  color: var(--text-primary);
+}
+
+.github-star-btn:hover {
+  background: var(--accent-gradient-soft);
+  color: var(--accent-hover);
+  border-color: var(--border-accent);
+  box-shadow: var(--shadow-glow), 0 3px 12px rgba(0, 0, 0, 0.15);
+  transform: translateY(-1px);
+}
+
+.github-star-btn .star-icon {
+  color: #eab308;
+  transition: transform var(--transition-fast);
+}
+
+.github-star-btn:hover .star-icon {
+  transform: scale(1.18) rotate(15deg);
+}
+
 .wasm-badge {
   display: inline-flex; align-items: center; gap: 4px;
   font-size: 10.5px; font-weight: 700; padding: 3px 8px;
@@ -1217,6 +1264,13 @@ h1, h2, h3, h4 { font-weight: 700; color: var(--text-primary); }
   .theme-toggle-btn {
     width: 32px;
     height: 32px;
+  }
+
+  .github-star-btn {
+    height: 32px;
+    padding: 5px 8px;
+    font-size: 11px;
+    gap: 4px;
   }
 
   .tab-btn {

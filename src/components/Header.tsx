@@ -1,5 +1,5 @@
 import React from 'react';
-import { Braces, GitCompare, Sun, Moon, RefreshCw } from 'lucide-react';
+import { Braces, GitCompare, Sun, Moon, RefreshCw, Star } from 'lucide-react';
 
 export type ToolTab = 'formatter' | 'diff' | 'tree' | 'converter';
 
@@ -83,11 +83,13 @@ export const Header: React.FC<HeaderProps> = ({ activeTab, navigateTo, theme, to
           href="https://github.com/vkmrishad/json-tools"
           target="_blank"
           rel="noopener noreferrer"
-          className="theme-toggle-btn"
-          title="View Source on GitHub"
-          aria-label="GitHub Repository"
+          className="github-star-btn"
+          title="Star JSONTools on GitHub"
+          aria-label="Star JSONTools on GitHub"
         >
-          <GithubIcon size={17} />
+          <GithubIcon size={15} />
+          <span className="github-star-text">Star</span>
+          <Star size={13} className="star-icon" fill="currentColor" />
         </a>
 
         <button
