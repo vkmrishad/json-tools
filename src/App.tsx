@@ -103,8 +103,8 @@ export const App: React.FC = () => {
 
       <Header activeTab={activeTab} navigateTo={navigateTo} theme={theme} toggleTheme={toggleTheme} />
 
-      {/* Top leaderboard ad — slim, non-intrusive */}
-      <AdUnit type="leaderboard" />
+      {/* Top Header Ad (728x90) */}
+      <AdUnit position="header" />
 
       <main id="workspace" style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 10, marginTop: 8 }}>
         {/* Tool content with path and anchor identifiers */}
@@ -133,9 +133,9 @@ export const App: React.FC = () => {
       {/* Structured SEO, How-It-Works, and FAQ Sections */}
       <SeoContent activeTab={activeTab} />
 
-      {/* Pre-Footer Leaderboard Ad */}
+      {/* Footer Ad (728x90) */}
       <div style={{ marginTop: 24, marginBottom: 12 }}>
-        <AdUnit type="leaderboard" />
+        <AdUnit position="footer" />
       </div>
 
       {/* Comprehensive 5-Column SEO Links Footer */}

@@ -4,6 +4,7 @@ import {
   Check, AlertCircle, Search, X, Code2, Eye, Globe
 } from 'lucide-react';
 import { TreeViewer } from './TreeViewer';
+import { AdUnit } from './AdUnit';
 import {
   FormatIndentIcon,
   MinifyLinesIcon,
@@ -1038,16 +1039,8 @@ export const Formatter: React.FC<FormatterProps> = ({ theme, showToast }) => {
             Format / Beautify
           </button>
 
-          {/* 6. Clean Center Ad Slot */}
-          <div className="center-ad-wrapper">
-            <div className="center-ad-box" role="complementary" title="Advertisement Slot">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" opacity={0.35}>
-                <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
-                <path d="M8 21h8M12 17v4"/>
-              </svg>
-              <span style={{ marginTop: 4, opacity: 0.6 }}>160 × 600</span>
-            </div>
-          </div>
+          {/* 6. Clean Center Ad Slot (160x160) */}
+          <AdUnit position="middle" />
 
           {/* 7. Minify / Compact */}
           <button
