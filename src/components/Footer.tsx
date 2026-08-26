@@ -1,5 +1,5 @@
 import React from 'react';
-import { Braces, ShieldCheck } from 'lucide-react';
+import { Braces, ShieldCheck, Bug, AlertCircle } from 'lucide-react';
 import type { ToolTab } from './Header';
 
 const GithubIcon = ({ size = 16 }: { size?: number }) => (
@@ -193,6 +193,18 @@ export const Footer: React.FC<FooterProps> = ({ navigateTo }) => {
                 <GithubIcon size={13} /> GitHub Repository
               </a>
             </li>
+            <li>
+              <a
+                href="https://github.com/vkmrishad/json-tools/issues"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="footer-link-btn"
+                style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontWeight: 600, color: 'var(--accent-hover)' }}
+                title="Report a bug or submit feedback on GitHub"
+              >
+                <Bug size={13} /> Report an Issue
+              </a>
+            </li>
           </ul>
         </div>
       </div>
@@ -228,6 +240,17 @@ export const Footer: React.FC<FooterProps> = ({ navigateTo }) => {
             title="Star on GitHub"
           >
             <GithubIcon size={14} /> <span>GitHub</span>
+          </a>
+
+          <a
+            href="https://github.com/vkmrishad/json-tools/issues"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="footer-link-btn"
+            style={{ display: 'inline-flex', alignItems: 'center', gap: 5, color: 'var(--text-muted)' }}
+            title="Report an Issue or Suggest a Feature"
+          >
+            <Bug size={14} /> <span>Report Issue</span>
           </a>
 
           <div className="footer-copyright">
