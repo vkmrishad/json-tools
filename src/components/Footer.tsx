@@ -1,5 +1,5 @@
 import React from 'react';
-import { Braces, ShieldCheck, Bug, AlertCircle } from 'lucide-react';
+import { Braces, ShieldCheck, Bug } from 'lucide-react';
 import type { ToolTab } from './Header';
 
 const GithubIcon = ({ size = 16 }: { size?: number }) => (
