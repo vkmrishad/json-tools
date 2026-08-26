@@ -66,7 +66,7 @@ export function getSeoMetadata(tab: ToolTab, hash = ''): SeoMeta {
       description: 'Compare two JSON payloads side-by-side with synchronized line scrolling, red removals, and green additions breakdown.',
       keywords: 'side by side json diff, split json diff, compare json files, visual json diffchecker',
       h1: 'Side-by-Side (Split) JSON Diff Checker',
-      canonical: `${BASE_URL}/json-diff/#split-diff`,
+      canonical: `${BASE_URL}/json-diff-checker/#split-diff`,
     };
   }
   if (cleanHash === 'inline-diff') {
@@ -75,7 +75,7 @@ export function getSeoMetadata(tab: ToolTab, hash = ''): SeoMeta {
       description: 'Review JSON differences in a unified single-column Git-style patch stream with inline additions and removals.',
       keywords: 'inline json diff, unified json diff, git diff json, compare json online',
       h1: 'Unified Inline JSON Diff Checker',
-      canonical: `${BASE_URL}/json-diff/#inline-diff`,
+      canonical: `${BASE_URL}/json-diff-checker/#inline-diff`,
     };
   }
   if (cleanHash === 'json-validator') {
@@ -114,7 +114,7 @@ export function getSeoMetadata(tab: ToolTab, hash = ''): SeoMeta {
         description: 'Compare two JSON files or strings online with Diffchecker-style side-by-side & unified views. Real-time visual comparison with additions, removals, line stats, and key-normalized sorting.',
         keywords: 'json diff, json compare, json diff checker, compare json online, diffchecker json, json comparison tool, visual json diff, side by side json compare',
         h1: 'Online JSON Diff Checker & Comparison Tool',
-        canonical: `${BASE_URL}/json-diff`,
+        canonical: `${BASE_URL}/json-diff-checker`,
       };
     case 'tree':
       return {

@@ -62,7 +62,7 @@ export const App: React.FC = () => {
     setRoute({ tab, hash: cleanHash });
     updatePageSeo(tab, cleanHash);
     
-    const basePath = tab === 'formatter' ? '/json-formatter' : tab === 'diff' ? '/json-diff' : tab === 'tree' ? '/json-tree' : '/json-converter';
+    const basePath = tab === 'formatter' ? '/json-formatter' : tab === 'diff' ? '/json-diff-checker' : tab === 'tree' ? '/json-tree' : '/json-converter';
     const targetUrl = cleanHash ? `${basePath}/#${cleanHash}` : basePath;
     
     if (window.location.pathname + window.location.hash !== targetUrl) {

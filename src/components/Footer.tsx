@@ -94,27 +94,27 @@ export const Footer: React.FC<FooterProps> = ({ navigateTo }) => {
           <h3 className="footer-col-title">Diff Checker</h3>
           <ul className="footer-col-list">
             <li>
-              <a href="/json-diff/#split-diff" className="footer-link-btn" onClick={(e) => handleNav('diff', 'split-diff', e)}>
+              <a href="/json-diff-checker/#split-diff" className="footer-link-btn" onClick={(e) => handleNav('diff', 'split-diff', e)}>
                 Side-by-Side JSON Diff (Split)
               </a>
             </li>
             <li>
-              <a href="/json-diff/#inline-diff" className="footer-link-btn" onClick={(e) => handleNav('diff', 'inline-diff', e)}>
+              <a href="/json-diff-checker/#inline-diff" className="footer-link-btn" onClick={(e) => handleNav('diff', 'inline-diff', e)}>
                 Unified Inline JSON Diff
               </a>
             </li>
             <li>
-              <a href="/json-diff/#key-sorted-diff" className="footer-link-btn" onClick={(e) => handleNav('diff', 'key-sorted-diff', e)}>
+              <a href="/json-diff-checker/#key-sorted-diff" className="footer-link-btn" onClick={(e) => handleNav('diff', 'key-sorted-diff', e)}>
                 Key-Sorted JSON Compare
               </a>
             </li>
             <li>
-              <a href="/json-diff/#whitespace-diff" className="footer-link-btn" onClick={(e) => handleNav('diff', 'whitespace-diff', e)}>
+              <a href="/json-diff-checker/#whitespace-diff" className="footer-link-btn" onClick={(e) => handleNav('diff', 'whitespace-diff', e)}>
                 Whitespace-Agnostic Diffing
               </a>
             </li>
             <li>
-              <a href="/json-diff/#export-diff" className="footer-link-btn" onClick={(e) => handleNav('diff', 'export-diff', e)}>
+              <a href="/json-diff-checker/#export-diff" className="footer-link-btn" onClick={(e) => handleNav('diff', 'export-diff', e)}>
                 Export Unified .diff Patch
               </a>
             </li>

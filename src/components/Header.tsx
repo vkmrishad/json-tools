@@ -28,7 +28,7 @@ const TreeIcon = () => (
 
 const TABS: { id: ToolTab; label: string; icon: React.ReactNode; shortLabel: string; path: string }[] = [
   { id: 'formatter', label: 'JSON Formatter & Beautifier', shortLabel: 'Formatter', icon: <Braces size={15} />, path: '/json-formatter' },
-  { id: 'diff',      label: 'JSON Diff Checker',           shortLabel: 'Diff',      icon: <GitCompare size={15} />, path: '/json-diff' },
+  { id: 'diff',      label: 'JSON Diff Checker',           shortLabel: 'Diff',      icon: <GitCompare size={15} />, path: '/json-diff-checker' },
   { id: 'tree',      label: 'JSON Tree Visualizer',         shortLabel: 'Tree',      icon: <TreeIcon />,             path: '/json-tree' },
   { id: 'converter', label: 'JSON Converter',               shortLabel: 'Convert',   icon: <RefreshCw size={15} />,  path: '/json-converter' },
 ];
