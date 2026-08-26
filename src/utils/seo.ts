@@ -169,6 +169,7 @@ export function updatePageSeo(tab: ToolTab, hash = ''): SeoMeta {
   setMeta('og:title', meta.title, true);
   setMeta('og:description', meta.description, true);
   setMeta('og:url', meta.canonical, true);
+  setMeta('og:site_name', SITE_NAME, true);
   setMeta('twitter:title', meta.title);
   setMeta('twitter:description', meta.description);
 
@@ -183,3 +184,4 @@ export function updatePageSeo(tab: ToolTab, hash = ''): SeoMeta {
 
   return meta;
 }
+
