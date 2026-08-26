@@ -8,7 +8,8 @@ export interface SeoMeta {
   canonical: string;
 }
 
-const BASE_URL = 'https://jsontools.mohammedrishad.com';
+const BASE_URL = (import.meta.env.VITE_SITE_URL as string) || (typeof window !== 'undefined' ? window.location.origin : 'https://jsontools.mohammedrishad.com');
+const SITE_NAME = (import.meta.env.VITE_SITE_NAME as string) || 'JSONTools';
 
 export function getSeoMetadata(tab: ToolTab, hash = ''): SeoMeta {
   const cleanHash = hash.toLowerCase().replace(/^#\/?/, '');

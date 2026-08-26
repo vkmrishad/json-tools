@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "wasm-build": "npx wasm-pack build wasm-json --target web --out-dir src/wasm-pkg",
-    "build": "npm run wasm-build && tsc -b && vite build && cp dist/index.html dist/404.html",
+    "build": "npm run wasm-build && tsc -b && vite build",
     "deploy": "npm run build && gh-pages -d dist",
     "lint": "eslint .",
     "preview": "vite preview"
