@@ -75,10 +75,10 @@ const SAMPLE_MODIFIED = JSON.stringify({
 }, null, 2);
 
 export const DiffChecker: React.FC<DiffCheckerProps> = ({ theme, showToast }) => {
-  const [leftValue, setLeftValue] = useState(SAMPLE_ORIGINAL);
-  const [rightValue, setRightValue] = useState(SAMPLE_MODIFIED);
-  const [diffOriginal, setDiffOriginal] = useState(SAMPLE_ORIGINAL);
-  const [diffModified, setDiffModified] = useState(SAMPLE_MODIFIED);
+  const [leftValue, setLeftValue] = useState<string>(() => localStorage.getItem('jsontools-diff-left') || '');
+  const [rightValue, setRightValue] = useState<string>(() => localStorage.getItem('jsontools-diff-right') || '');
+  const [diffOriginal, setDiffOriginal] = useState<string>(() => localStorage.getItem('jsontools-diff-left') || '');
+  const [diffModified, setDiffModified] = useState<string>(() => localStorage.getItem('jsontools-diff-right') || '');
 
   const [leftError, setLeftError] = useState<string | null>(null);
   const [rightError, setRightError] = useState<string | null>(null);
@@ -95,7 +95,11 @@ export const DiffChecker: React.FC<DiffCheckerProps> = ({ theme, showToast }) =>
   const [showRemovalPopover, setShowRemovalPopover] = useState(false);
   const [showAdditionPopover, setShowAdditionPopover] = useState(false);
 
-  const [stats, setStats] = useState<DetailedStats>(() => computeDetailedStats(SAMPLE_ORIGINAL, SAMPLE_MODIFIED));
+  const [stats, setStats] = useState<DetailedStats>(() => {
+    const l = localStorage.getItem('jsontools-diff-left') || '';
+    const r = localStorage.getItem('jsontools-diff-right') || '';
+    return computeDetailedStats(l, r);
+  });
 
   const leftWorkerRef = useRef<Worker | null>(null);
   const rightWorkerRef = useRef<Worker | null>(null);
@@ -154,6 +158,8 @@ export const DiffChecker: React.FC<DiffCheckerProps> = ({ theme, showToast }) =>
   const handleFindDifference = () => {
     setDiffOriginal(leftValue);
     setDiffModified(rightValue);
+    localStorage.setItem('jsontools-diff-left', leftValue);
+    localStorage.setItem('jsontools-diff-right', rightValue);
     showToast('Difference computed!');
     diffContainerRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   };
@@ -186,6 +192,8 @@ export const DiffChecker: React.FC<DiffCheckerProps> = ({ theme, showToast }) =>
     setRightValue(sortedRight);
     setDiffOriginal(sortedLeft);
     setDiffModified(sortedRight);
+    localStorage.setItem('jsontools-diff-left', sortedLeft);
+    localStorage.setItem('jsontools-diff-right', sortedRight);
     setGlobalLoading(false);
     showToast('Keys sorted & diff computed!');
   }, [leftValue, rightValue, showToast]);
@@ -196,6 +204,8 @@ export const DiffChecker: React.FC<DiffCheckerProps> = ({ theme, showToast }) =>
     setRightValue(tmp);
     setDiffOriginal(rightValue);
     setDiffModified(tmp);
+    localStorage.setItem('jsontools-diff-left', rightValue);
+    localStorage.setItem('jsontools-diff-right', tmp);
     showToast('Swapped Original and Changed text!');
   };
 
@@ -206,6 +216,8 @@ export const DiffChecker: React.FC<DiffCheckerProps> = ({ theme, showToast }) =>
     setDiffModified('');
     setLeftError(null);
     setRightError(null);
+    localStorage.setItem('jsontools-diff-left', '');
+    localStorage.setItem('jsontools-diff-right', '');
   };
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>, side: 'left' | 'right') => {
@@ -214,8 +226,17 @@ export const DiffChecker: React.FC<DiffCheckerProps> = ({ theme, showToast }) =>
     const reader = new FileReader();
     reader.onload = (ev) => {
       const content = ev.target?.result as string;
-      if (side === 'left') { setLeftValue(content); setDiffOriginal(content); showToast(`Loaded to Original.`); }
-      else { setRightValue(content); setDiffModified(content); showToast(`Loaded to Changed.`); }
+      if (side === 'left') {
+        setLeftValue(content);
+        setDiffOriginal(content);
+        localStorage.setItem('jsontools-diff-left', content);
+        showToast(`Loaded to Original.`);
+      } else {
+        setRightValue(content);
+        setDiffModified(content);
+        localStorage.setItem('jsontools-diff-right', content);
+        showToast(`Loaded to Changed.`);
+      }
     };
     reader.readAsText(file);
     e.target.value = '';
@@ -226,6 +247,8 @@ export const DiffChecker: React.FC<DiffCheckerProps> = ({ theme, showToast }) =>
     setRightValue(SAMPLE_MODIFIED);
     setDiffOriginal(SAMPLE_ORIGINAL);
     setDiffModified(SAMPLE_MODIFIED);
+    localStorage.setItem('jsontools-diff-left', SAMPLE_ORIGINAL);
+    localStorage.setItem('jsontools-diff-right', SAMPLE_MODIFIED);
     showToast('Sample dataset loaded!');
   };
 
@@ -243,7 +266,8 @@ export const DiffChecker: React.FC<DiffCheckerProps> = ({ theme, showToast }) =>
     showToast('Diff file exported!');
   };
 
-  const isIdentical = diffOriginal.trim() && diffModified.trim() && stats.linesRemoved === 0 && stats.linesAdded === 0;
+  const hasDiffContent = Boolean(diffOriginal.trim() || diffModified.trim());
+  const isIdentical = hasDiffContent && stats.linesRemoved === 0 && stats.linesAdded === 0;
 
   const lineAddPct = stats.modLines > 0 ? ((stats.linesAdded / stats.modLines) * 100).toFixed(1) : '0.0';
   const lineRemPct = stats.origLines > 0 ? ((stats.linesRemoved / stats.origLines) * 100).toFixed(1) : '0.0';
@@ -252,87 +276,94 @@ export const DiffChecker: React.FC<DiffCheckerProps> = ({ theme, showToast }) =>
 
   return (
     <div className="tab-content diff-layout" style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-      {/* ════════════ TOP SECTION: DIFF VIEWER ════════════ */}
-      <div ref={diffContainerRef} className="glass-panel" style={{ minHeight: 380, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+      {/* ════════════ TOP SECTION: DIFF VIEWER (SHOWN ONLY WHEN DIFF IS COMPUTED) ════════════ */}
+      {hasDiffContent && (
+        <div ref={diffContainerRef} className="glass-panel" style={{ minHeight: 380, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
         {/* Diff Header Bar (matching diffchecker.com with interactive stats popover) */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 16px', background: 'var(--bg-tertiary)', borderBottom: '1px solid var(--border-color)', fontSize: 12, flexWrap: 'wrap', gap: 10 }}>
-          {/* Left Stat Pill with Popover */}
+          {/* Left: Original Text or Stats */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, position: 'relative' }}>
-            <div
-              onMouseEnter={() => setShowRemovalPopover(true)}
-              onMouseLeave={() => setShowRemovalPopover(false)}
-              style={{ position: 'relative', display: 'inline-block' }}
-            >
-              <span
-                style={{
-                  background: 'rgba(239, 68, 68, 0.12)',
-                  border: '1px solid rgba(239, 68, 68, 0.3)',
-                  color: '#dc2626',
-                  padding: '4px 10px',
-                  borderRadius: 6,
-                  fontWeight: 600,
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: 5,
-                  cursor: 'pointer'
-                }}
-              >
-                <MinusCircle size={14} /> {stats.linesRemoved} removal{stats.linesRemoved === 1 ? '' : 's'}
-              </span>
+            <span style={{ fontWeight: 700, color: 'var(--text-secondary)' }}>Original text</span>
 
-              {/* Removals Breakdown Popover */}
-              {showRemovalPopover && (
+            {hasDiffContent && (
+              <>
                 <div
-                  style={{
-                    position: 'absolute',
-                    top: 'calc(100% + 6px)',
-                    left: 0,
-                    zIndex: 100,
-                    width: 220,
-                    background: 'var(--bg-secondary)',
-                    border: '1px solid var(--border-color)',
-                    borderRadius: 8,
-                    boxShadow: '0 10px 25px rgba(0,0,0,0.15)',
-                    padding: '12px 14px',
-                    fontSize: 12,
-                    color: 'var(--text-primary)'
-                  }}
+                  onMouseEnter={() => setShowRemovalPopover(true)}
+                  onMouseLeave={() => setShowRemovalPopover(false)}
+                  style={{ position: 'relative', display: 'inline-block' }}
                 >
-                  <div style={{ marginBottom: 10 }}>
-                    <div style={{ fontWeight: 700, color: 'var(--text-secondary)', marginBottom: 4 }}>Lines</div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 2 }}>
-                      <span style={{ color: 'var(--text-muted)' }}>Total</span>
-                      <span style={{ fontWeight: 600 }}>{stats.origLines}</span>
-                    </div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                      <span style={{ color: 'var(--text-muted)' }}>Removed</span>
-                      <span style={{ color: '#dc2626', fontWeight: 600 }}>-{lineRemPct}% {stats.linesRemoved}</span>
-                    </div>
-                  </div>
+                  <span
+                    style={{
+                      background: 'rgba(239, 68, 68, 0.12)',
+                      border: '1px solid rgba(239, 68, 68, 0.3)',
+                      color: '#dc2626',
+                      padding: '4px 10px',
+                      borderRadius: 6,
+                      fontWeight: 600,
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: 5,
+                      cursor: 'pointer'
+                    }}
+                  >
+                    <MinusCircle size={14} /> {stats.linesRemoved} removal{stats.linesRemoved === 1 ? '' : 's'}
+                  </span>
 
-                  <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: 8 }}>
-                    <div style={{ fontWeight: 700, color: 'var(--text-secondary)', marginBottom: 4 }}>Characters</div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 2 }}>
-                      <span style={{ color: 'var(--text-muted)' }}>Total</span>
-                      <span style={{ fontWeight: 600 }}>{stats.origChars}</span>
+                  {/* Removals Breakdown Popover */}
+                  {showRemovalPopover && (
+                    <div
+                      style={{
+                        position: 'absolute',
+                        top: 'calc(100% + 6px)',
+                        left: 0,
+                        zIndex: 100,
+                        width: 220,
+                        background: 'var(--bg-secondary)',
+                        border: '1px solid var(--border-color)',
+                        borderRadius: 8,
+                        boxShadow: '0 10px 25px rgba(0,0,0,0.15)',
+                        padding: '12px 14px',
+                        fontSize: 12,
+                        color: 'var(--text-primary)'
+                      }}
+                    >
+                      <div style={{ marginBottom: 10 }}>
+                        <div style={{ fontWeight: 700, color: 'var(--text-secondary)', marginBottom: 4 }}>Lines</div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 2 }}>
+                          <span style={{ color: 'var(--text-muted)' }}>Total</span>
+                          <span style={{ fontWeight: 600 }}>{stats.origLines}</span>
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                          <span style={{ color: 'var(--text-muted)' }}>Removed</span>
+                          <span style={{ color: '#dc2626', fontWeight: 600 }}>-{lineRemPct}% {stats.linesRemoved}</span>
+                        </div>
+                      </div>
+
+                      <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: 8 }}>
+                        <div style={{ fontWeight: 700, color: 'var(--text-secondary)', marginBottom: 4 }}>Characters</div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 2 }}>
+                          <span style={{ color: 'var(--text-muted)' }}>Total</span>
+                          <span style={{ fontWeight: 600 }}>{stats.origChars}</span>
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                          <span style={{ color: 'var(--text-muted)' }}>Removed</span>
+                          <span style={{ color: '#dc2626', fontWeight: 600 }}>-{charRemPct}% {stats.charsRemoved}</span>
+                        </div>
+                      </div>
                     </div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                      <span style={{ color: 'var(--text-muted)' }}>Removed</span>
-                      <span style={{ color: '#dc2626', fontWeight: 600 }}>-{charRemPct}% {stats.charsRemoved}</span>
-                    </div>
-                  </div>
+                  )}
                 </div>
-              )}
-            </div>
 
-            <span style={{ color: 'var(--text-muted)' }}>{stats.origLines} lines</span>
-            <button
-              className="btn btn-secondary btn-xs"
-              onClick={() => { navigator.clipboard.writeText(diffOriginal); showToast('Original text copied!'); }}
-              style={{ padding: '2px 8px', fontSize: 11 }}
-            >
-              Copy
-            </button>
+                <span style={{ color: 'var(--text-muted)' }}>{stats.origLines} lines</span>
+                <button
+                  className="btn btn-secondary btn-xs"
+                  onClick={() => { navigator.clipboard.writeText(diffOriginal); showToast('Original text copied!'); }}
+                  style={{ padding: '2px 8px', fontSize: 11 }}
+                >
+                  Copy
+                </button>
+              </>
+            )}
           </div>
 
           {/* Center Controls & Actions */}
@@ -400,10 +431,6 @@ export const DiffChecker: React.FC<DiffCheckerProps> = ({ theme, showToast }) =>
               Sort Keys &amp; Compare
             </button>
 
-            <button className="btn btn-secondary btn-xs" onClick={handleLoadSample} style={{ padding: '4px 8px' }}>
-              Sample
-            </button>
-
             <button className="btn btn-secondary btn-xs" onClick={handleExportDiff} title="Export diff file" style={{ padding: '4px 8px' }}>
               <Download size={12} /> Export
             </button>
@@ -413,83 +440,89 @@ export const DiffChecker: React.FC<DiffCheckerProps> = ({ theme, showToast }) =>
             </button>
           </div>
 
-          {/* Right Stat Pill with Popover */}
+          {/* Right: Changed Text or Stats */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, position: 'relative' }}>
-            <button
-              className="btn btn-secondary btn-xs"
-              onClick={() => { navigator.clipboard.writeText(diffModified); showToast('Changed text copied!'); }}
-              style={{ padding: '2px 8px', fontSize: 11 }}
-            >
-              Copy
-            </button>
-            <span style={{ color: 'var(--text-muted)' }}>{stats.modLines} lines</span>
-
-            <div
-              onMouseEnter={() => setShowAdditionPopover(true)}
-              onMouseLeave={() => setShowAdditionPopover(false)}
-              style={{ position: 'relative', display: 'inline-block' }}
-            >
-              <span
-                style={{
-                  background: 'rgba(16, 185, 129, 0.12)',
-                  border: '1px solid rgba(16, 185, 129, 0.3)',
-                  color: '#059669',
-                  padding: '4px 10px',
-                  borderRadius: 6,
-                  fontWeight: 600,
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: 5,
-                  cursor: 'pointer'
-                }}
-              >
-                <PlusCircle size={14} /> {stats.linesAdded} addition{stats.linesAdded === 1 ? '' : 's'}
-              </span>
-
-              {/* Additions Breakdown Popover */}
-              {showAdditionPopover && (
-                <div
-                  style={{
-                    position: 'absolute',
-                    top: 'calc(100% + 6px)',
-                    right: 0,
-                    zIndex: 100,
-                    width: 220,
-                    background: 'var(--bg-secondary)',
-                    border: '1px solid var(--border-color)',
-                    borderRadius: 8,
-                    boxShadow: '0 10px 25px rgba(0,0,0,0.15)',
-                    padding: '12px 14px',
-                    fontSize: 12,
-                    color: 'var(--text-primary)'
-                  }}
+            {hasDiffContent && (
+              <>
+                <button
+                  className="btn btn-secondary btn-xs"
+                  onClick={() => { navigator.clipboard.writeText(diffModified); showToast('Changed text copied!'); }}
+                  style={{ padding: '2px 8px', fontSize: 11 }}
                 >
-                  <div style={{ marginBottom: 10 }}>
-                    <div style={{ fontWeight: 700, color: 'var(--text-secondary)', marginBottom: 4 }}>Lines</div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 2 }}>
-                      <span style={{ color: 'var(--text-muted)' }}>Total</span>
-                      <span style={{ fontWeight: 600 }}>{stats.modLines}</span>
-                    </div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                      <span style={{ color: 'var(--text-muted)' }}>Added</span>
-                      <span style={{ color: '#059669', fontWeight: 600 }}>+{lineAddPct}% {stats.linesAdded}</span>
-                    </div>
-                  </div>
+                  Copy
+                </button>
+                <span style={{ color: 'var(--text-muted)' }}>{stats.modLines} lines</span>
 
-                  <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: 8 }}>
-                    <div style={{ fontWeight: 700, color: 'var(--text-secondary)', marginBottom: 4 }}>Characters</div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 2 }}>
-                      <span style={{ color: 'var(--text-muted)' }}>Total</span>
-                      <span style={{ fontWeight: 600 }}>{stats.modChars}</span>
+                <div
+                  onMouseEnter={() => setShowAdditionPopover(true)}
+                  onMouseLeave={() => setShowAdditionPopover(false)}
+                  style={{ position: 'relative', display: 'inline-block' }}
+                >
+                  <span
+                    style={{
+                      background: 'rgba(16, 185, 129, 0.12)',
+                      border: '1px solid rgba(16, 185, 129, 0.3)',
+                      color: '#059669',
+                      padding: '4px 10px',
+                      borderRadius: 6,
+                      fontWeight: 600,
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: 5,
+                      cursor: 'pointer'
+                    }}
+                  >
+                    <PlusCircle size={14} /> {stats.linesAdded} addition{stats.linesAdded === 1 ? '' : 's'}
+                  </span>
+
+                  {/* Additions Breakdown Popover */}
+                  {showAdditionPopover && (
+                    <div
+                      style={{
+                        position: 'absolute',
+                        top: 'calc(100% + 6px)',
+                        right: 0,
+                        zIndex: 100,
+                        width: 220,
+                        background: 'var(--bg-secondary)',
+                        border: '1px solid var(--border-color)',
+                        borderRadius: 8,
+                        boxShadow: '0 10px 25px rgba(0,0,0,0.15)',
+                        padding: '12px 14px',
+                        fontSize: 12,
+                        color: 'var(--text-primary)'
+                      }}
+                    >
+                      <div style={{ marginBottom: 10 }}>
+                        <div style={{ fontWeight: 700, color: 'var(--text-secondary)', marginBottom: 4 }}>Lines</div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 2 }}>
+                          <span style={{ color: 'var(--text-muted)' }}>Total</span>
+                          <span style={{ fontWeight: 600 }}>{stats.modLines}</span>
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                          <span style={{ color: 'var(--text-muted)' }}>Added</span>
+                          <span style={{ color: '#059669', fontWeight: 600 }}>+{lineAddPct}% {stats.linesAdded}</span>
+                        </div>
+                      </div>
+
+                      <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: 8 }}>
+                        <div style={{ fontWeight: 700, color: 'var(--text-secondary)', marginBottom: 4 }}>Characters</div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 2 }}>
+                          <span style={{ color: 'var(--text-muted)' }}>Total</span>
+                          <span style={{ fontWeight: 600 }}>{stats.modChars}</span>
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                          <span style={{ color: 'var(--text-muted)' }}>Added</span>
+                          <span style={{ color: '#059669', fontWeight: 600 }}>+{charAddPct}% {stats.charsAdded}</span>
+                        </div>
+                      </div>
                     </div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                      <span style={{ color: 'var(--text-muted)' }}>Added</span>
-                      <span style={{ color: '#059669', fontWeight: 600 }}>+{charAddPct}% {stats.charsAdded}</span>
-                    </div>
-                  </div>
+                  )}
                 </div>
-              )}
-            </div>
+              </>
+            )}
+
+            <span style={{ fontWeight: 700, color: 'var(--text-secondary)' }}>Changed text</span>
           </div>
         </div>
 
@@ -521,6 +554,7 @@ export const DiffChecker: React.FC<DiffCheckerProps> = ({ theme, showToast }) =>
           />
         </div>
       </div>
+      )}
 
       {/* ════════════ BOTTOM SECTION: EDIT INPUT PANES ════════════ */}
       <div className="diff-editors-grid" style={{ minHeight: 300 }}>
@@ -531,6 +565,17 @@ export const DiffChecker: React.FC<DiffCheckerProps> = ({ theme, showToast }) =>
               <FileText size={14} /> Original text
             </div>
             <div className="editor-card-actions">
+              <button
+                className="btn btn-secondary btn-xs"
+                onClick={() => {
+                  setLeftValue(SAMPLE_ORIGINAL);
+                  localStorage.setItem('jsontools-diff-left', SAMPLE_ORIGINAL);
+                  showToast('Original sample loaded!');
+                }}
+                title="Load Original Sample JSON"
+              >
+                Sample
+              </button>
               <button className="btn btn-secondary btn-xs" onClick={() => handleFormat('left')} disabled={leftLoading || !leftValue.trim()} title="Format JSON">
                 {leftLoading ? <span className="spinner-sm" /> : <AlignLeft size={12} />} Format
               </button>
@@ -549,7 +594,11 @@ export const DiffChecker: React.FC<DiffCheckerProps> = ({ theme, showToast }) =>
               language="json"
               theme={theme === 'dark' ? 'vs-dark' : 'light'}
               value={leftValue}
-              onChange={(v) => setLeftValue(v || '')}
+              onChange={(v) => {
+                const val = v || '';
+                setLeftValue(val);
+                localStorage.setItem('jsontools-diff-left', val);
+              }}
               options={{ fontSize: 13, fontFamily: 'var(--font-mono)', minimap: { enabled: false }, wordWrap: lineWrap ? 'on' : 'off', scrollbar: { verticalScrollbarSize: 7 } }}
               loading={<div className="monaco-loader"><div className="spinner" /></div>}
             />
@@ -563,6 +612,17 @@ export const DiffChecker: React.FC<DiffCheckerProps> = ({ theme, showToast }) =>
               <FileText size={14} /> Changed text
             </div>
             <div className="editor-card-actions">
+              <button
+                className="btn btn-secondary btn-xs"
+                onClick={() => {
+                  setRightValue(SAMPLE_MODIFIED);
+                  localStorage.setItem('jsontools-diff-right', SAMPLE_MODIFIED);
+                  showToast('Changed sample loaded!');
+                }}
+                title="Load Changed Sample JSON"
+              >
+                Sample
+              </button>
               <button className="btn btn-secondary btn-xs" onClick={() => handleFormat('right')} disabled={rightLoading || !rightValue.trim()} title="Format JSON">
                 {rightLoading ? <span className="spinner-sm" /> : <AlignLeft size={12} />} Format
               </button>
@@ -581,7 +641,11 @@ export const DiffChecker: React.FC<DiffCheckerProps> = ({ theme, showToast }) =>
               language="json"
               theme={theme === 'dark' ? 'vs-dark' : 'light'}
               value={rightValue}
-              onChange={(v) => setRightValue(v || '')}
+              onChange={(v) => {
+                const val = v || '';
+                setRightValue(val);
+                localStorage.setItem('jsontools-diff-right', val);
+              }}
               options={{ fontSize: 13, fontFamily: 'var(--font-mono)', minimap: { enabled: false }, wordWrap: lineWrap ? 'on' : 'off', scrollbar: { verticalScrollbarSize: 7 } }}
               loading={<div className="monaco-loader"><div className="spinner" /></div>}
             />
@@ -601,8 +665,8 @@ export const DiffChecker: React.FC<DiffCheckerProps> = ({ theme, showToast }) =>
         </div>
       )}
 
-      {/* ════════════ SOLE BOTTOM ACTION: "FIND DIFFERENCE" BUTTON (PURPLE BRAND THEME) ════════════ */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '14px 0 6px' }}>
+      {/* ════════════ BOTTOM ACTION BAR: "FIND DIFFERENCE" & "CLEAR" ════════════ */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12, padding: '14px 0 6px' }}>
         <button
           className="btn btn-primary"
           onClick={handleFindDifference}
@@ -620,6 +684,25 @@ export const DiffChecker: React.FC<DiffCheckerProps> = ({ theme, showToast }) =>
         >
           <GitCompare size={16} /> Find difference
         </button>
+
+        {Boolean(leftValue.trim() || rightValue.trim() || diffOriginal.trim() || diffModified.trim()) && (
+          <button
+            className="btn btn-danger"
+            onClick={handleClear}
+            style={{
+              padding: '11px 24px',
+              fontSize: 14,
+              fontWeight: 600,
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 6,
+              cursor: 'pointer'
+            }}
+            title="Clear all diff inputs and comparison results"
+          >
+            <Trash2 size={15} /> Clear
+          </button>
+        )}
       </div>
     </div>
   );

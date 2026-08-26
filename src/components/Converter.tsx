@@ -199,7 +199,10 @@ const resolveModeFromKey = (rawStr: string): ConversionMode => {
 export const Converter: React.FC<ConverterProps> = ({ theme, showToast, targetSubOption }) => {
   const initialMode = resolveModeFromKey(targetSubOption || window.location.hash || '');
   const [mode, setModeState] = useState<ConversionMode>(initialMode);
-  const [input, setInput] = useState<string>(() => SAMPLES[initialMode]);
+  const [input, setInput] = useState<string>(() => {
+    const saved = localStorage.getItem(`jsontools-conv-input-${initialMode}`);
+    return saved !== null ? saved : SAMPLES[initialMode];
+  });
   const [output, setOutput] = useState<string>('');
   const [error, setError] = useState<string | null>(null);
 
@@ -208,7 +211,8 @@ export const Converter: React.FC<ConverterProps> = ({ theme, showToast, targetSu
     if (targetSubOption) {
       const parsed = resolveModeFromKey(targetSubOption);
       setModeState(parsed);
-      setInput(SAMPLES[parsed]);
+      const saved = localStorage.getItem(`jsontools-conv-input-${parsed}`);
+      setInput(saved !== null ? saved : SAMPLES[parsed]);
       setOutput('');
       setError(null);
     }
@@ -219,7 +223,8 @@ export const Converter: React.FC<ConverterProps> = ({ theme, showToast, targetSu
     const handleHash = () => {
       const parsed = resolveModeFromKey(window.location.hash);
       setModeState(parsed);
-      setInput(SAMPLES[parsed]);
+      const saved = localStorage.getItem(`jsontools-conv-input-${parsed}`);
+      setInput(saved !== null ? saved : SAMPLES[parsed]);
       setOutput('');
       setError(null);
     };
@@ -231,16 +236,38 @@ export const Converter: React.FC<ConverterProps> = ({ theme, showToast, targetSu
     };
   }, []);
 
-  // Switching mode only selects the option and loads sample — NEVER auto-converts
+  // Switching mode only selects the option and loads sample/saved state
   const setMode = (newMode: ConversionMode) => {
     setModeState(newMode);
-    setInput(SAMPLES[newMode]);
+    const saved = localStorage.getItem(`jsontools-conv-input-${newMode}`);
+    setInput(saved !== null ? saved : SAMPLES[newMode]);
     setOutput('');
     setError(null);
     const targetUrl = `/json-converter/#${newMode}`;
     if (window.location.pathname + window.location.hash !== targetUrl) {
       window.history.pushState(null, '', targetUrl);
     }
+  };
+
+  const handleInputChange = (val: string) => {
+    setInput(val);
+    localStorage.setItem(`jsontools-conv-input-${mode}`, val);
+  };
+
+  const handleClear = () => {
+    setInput('');
+    setOutput('');
+    setError(null);
+    localStorage.setItem(`jsontools-conv-input-${mode}`, '');
+  };
+
+  const handleSample = () => {
+    const s = SAMPLES[mode];
+    setInput(s);
+    setOutput('');
+    setError(null);
+    localStorage.setItem(`jsontools-conv-input-${mode}`, s);
+    showToast('Sample dataset loaded!');
   };
 
   const currentMode = MODES.find((m) => m.id === mode) || MODES[0];
@@ -333,17 +360,11 @@ export const Converter: React.FC<ConverterProps> = ({ theme, showToast, targetSu
         </div>
 
         <div className="toolbar-right" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-          <button
-            className="btn btn-secondary btn-sm"
-            onClick={() => {
-              const s = SAMPLES[mode];
-              setInput(s);
-              setOutput('');
-              setError(null);
-              showToast('Sample dataset loaded!');
-            }}
-          >
+          <button className="btn btn-secondary btn-sm" onClick={handleSample}>
             Sample
+          </button>
+          <button className="btn btn-danger btn-sm" onClick={handleClear} disabled={!input}>
+            Clear
           </button>
           <button className="btn btn-secondary btn-sm" onClick={handleCopyOutput} disabled={!output}>
             <Copy size={13} /> Copy
@@ -367,7 +388,7 @@ export const Converter: React.FC<ConverterProps> = ({ theme, showToast, targetSu
         <div className="glass-panel dual-editor-pane">
           <div className="editor-card-header">
             <div className="editor-card-title">{currentMode.inputLabel}</div>
-            <button className="btn btn-secondary btn-xs" onClick={() => { setInput(''); setOutput(''); setError(null); }} disabled={!input}>
+            <button className="btn btn-secondary btn-xs" onClick={handleClear} disabled={!input}>
               Clear
             </button>
           </div>
@@ -377,7 +398,7 @@ export const Converter: React.FC<ConverterProps> = ({ theme, showToast, targetSu
               language={currentMode.inputLang}
               theme={theme === 'dark' ? 'vs-dark' : 'light'}
               value={input}
-              onChange={(val) => setInput(val || '')}
+              onChange={(val) => handleInputChange(val || '')}
               options={{ fontSize: 13, fontFamily: 'var(--font-mono)', minimap: { enabled: false }, wordWrap: 'on', scrollbar: { verticalScrollbarSize: 7 } }}
               loading={<div className="monaco-loader"><div className="spinner" /></div>}
             />

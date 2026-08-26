@@ -23,8 +23,18 @@ const SAMPLE_DATA = {
 };
 
 export const TreeTab: React.FC<TreeTabProps> = ({ theme, showToast }) => {
-  const [input, setInput] = useState<string>(() => JSON.stringify(SAMPLE_DATA, null, 2));
-  const [parsed, setParsed] = useState<any>(SAMPLE_DATA);
+  const [input, setInput] = useState<string>(() => {
+    const saved = localStorage.getItem('jsontools-tree-data');
+    return saved !== null ? saved : JSON.stringify(SAMPLE_DATA, null, 2);
+  });
+  const [parsed, setParsed] = useState<any>(() => {
+    const saved = localStorage.getItem('jsontools-tree-data');
+    if (saved === '') return null;
+    if (saved) {
+      try { return JSON.parse(saved); } catch { return null; }
+    }
+    return SAMPLE_DATA;
+  });
   const [error, setError] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<'split' | 'tree'>('split');
 
@@ -49,6 +59,7 @@ export const TreeTab: React.FC<TreeTabProps> = ({ theme, showToast }) => {
 
   const handleChange = (val: string) => {
     setInput(val);
+    localStorage.setItem('jsontools-tree-data', val);
     if (!val.trim()) { setParsed(null); setError(null); return; }
     try {
       const p = JSON.parse(val);
@@ -64,7 +75,15 @@ export const TreeTab: React.FC<TreeTabProps> = ({ theme, showToast }) => {
     setInput(s);
     setParsed(SAMPLE_DATA);
     setError(null);
+    localStorage.setItem('jsontools-tree-data', s);
     showToast('Sample dataset loaded!');
+  };
+
+  const handleClear = () => {
+    setInput('');
+    setParsed(null);
+    setError(null);
+    localStorage.setItem('jsontools-tree-data', '');
   };
 
   const statusClass = error ? 'status-invalid' : parsed ? 'status-valid' : 'status-empty';
@@ -96,7 +115,7 @@ export const TreeTab: React.FC<TreeTabProps> = ({ theme, showToast }) => {
         </div>
         <div className="toolbar-right">
           <button className="btn btn-secondary btn-sm" onClick={handleLoadSample}>Sample</button>
-          <button className="btn btn-danger btn-sm" onClick={() => { setInput(''); setParsed(null); setError(null); }} disabled={!input}>Clear</button>
+          <button className="btn btn-danger btn-sm" onClick={handleClear} disabled={!input}>Clear</button>
         </div>
       </div>
 
