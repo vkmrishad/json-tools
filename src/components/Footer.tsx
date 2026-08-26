@@ -1,5 +1,5 @@
 import React from 'react';
-import { Braces, ShieldCheck } from 'lucide-react';
+import { Braces, ShieldCheck, Github } from 'lucide-react';
 import type { ToolTab } from './Header';
 
 interface FooterProps {
@@ -15,31 +15,26 @@ export const Footer: React.FC<FooterProps> = ({ navigateTo }) => {
   };
 
   return (
-    <footer id="footer" className="footer-container" aria-label="DevJSON Navigation and Resource Footer">
-      {/* Top 5-Column SEO Links Grid */}
+    <footer id="footer" className="footer-container" aria-label="JSONTools Navigation and Resource Footer">
+      {/* 5 Categorized SEO Link Columns */}
       <div className="footer-links-grid">
-        {/* Column 1: JSON Tools */}
+        {/* Column 1: JSON Tools & Operations */}
         <div className="footer-col">
-          <h3 className="footer-col-title">JSON Tools</h3>
+          <h3 className="footer-col-title">JSON Formatter</h3>
           <ul className="footer-col-list">
             <li>
-              <a href="/json-formatter" className="footer-link-btn" onClick={(e) => handleNav('formatter', undefined, e)}>
-                JSON Formatter
+              <a href="/json-formatter/#json-beautifier" className="footer-link-btn" onClick={(e) => handleNav('formatter', 'json-beautifier', e)}>
+                JSON Beautifier &amp; Pretty Print
               </a>
             </li>
             <li>
               <a href="/json-formatter/#json-validator" className="footer-link-btn" onClick={(e) => handleNav('formatter', 'json-validator', e)}>
-                JSON Validator &amp; Syntax Checker
+                JSON Validator &amp; Linter
               </a>
             </li>
             <li>
               <a href="/json-formatter/#json-minifier" className="footer-link-btn" onClick={(e) => handleNav('formatter', 'json-minifier', e)}>
                 JSON Minifier &amp; Compressor
-              </a>
-            </li>
-            <li>
-              <a href="/json-formatter/#json-beautifier" className="footer-link-btn" onClick={(e) => handleNav('formatter', 'json-beautifier', e)}>
-                JSON Beautifier (2 &amp; 4 Spaces)
               </a>
             </li>
             <li>
@@ -49,18 +44,13 @@ export const Footer: React.FC<FooterProps> = ({ navigateTo }) => {
             </li>
             <li>
               <a href="/json-formatter/#json-repair" className="footer-link-btn" onClick={(e) => handleNav('formatter', 'json-repair', e)}>
-                JSON Auto-Repair (Python Dicts &amp; Loose JSON)
-              </a>
-            </li>
-            <li>
-              <a href="/json-formatter/#json-escape" className="footer-link-btn" onClick={(e) => handleNav('formatter', 'json-escape', e)}>
-                JSON Escape &amp; Unescape Strings
+                Python Dict to JSON Auto-Repair
               </a>
             </li>
           </ul>
         </div>
 
-        {/* Column 2: Converters */}
+        {/* Column 2: Data Converters */}
         <div className="footer-col">
           <h3 className="footer-col-title">Converters</h3>
           <ul className="footer-col-list">
@@ -89,46 +79,36 @@ export const Footer: React.FC<FooterProps> = ({ navigateTo }) => {
                 XML to JSON Parser
               </a>
             </li>
-            <li>
-              <a href="/json-converter" className="footer-link-btn" onClick={(e) => handleNav('converter', undefined, e)}>
-                Client-Side Schema Converter
-              </a>
-            </li>
           </ul>
         </div>
 
-        {/* Column 3: JSON Diff */}
+        {/* Column 3: Diff Checker & Comparator */}
         <div className="footer-col">
-          <h3 className="footer-col-title">JSON Diff</h3>
+          <h3 className="footer-col-title">Diff Checker</h3>
           <ul className="footer-col-list">
             <li>
-              <a href="/json-diff" className="footer-link-btn" onClick={(e) => handleNav('diff', undefined, e)}>
-                JSON Diff Checker
-              </a>
-            </li>
-            <li>
               <a href="/json-diff/#split-diff" className="footer-link-btn" onClick={(e) => handleNav('diff', 'split-diff', e)}>
-                Side-by-Side Split Diff Compare
+                Side-by-Side JSON Diff (Split)
               </a>
             </li>
             <li>
               <a href="/json-diff/#inline-diff" className="footer-link-btn" onClick={(e) => handleNav('diff', 'inline-diff', e)}>
-                Inline Unified Diff View
+                Unified Inline JSON Diff
               </a>
             </li>
             <li>
-              <a href="/json-diff/#sort-diff" className="footer-link-btn" onClick={(e) => handleNav('diff', 'sort-diff', e)}>
-                Sort Keys Before Diff
+              <a href="/json-diff/#key-sorted-diff" className="footer-link-btn" onClick={(e) => handleNav('diff', 'key-sorted-diff', e)}>
+                Key-Sorted JSON Compare
               </a>
             </li>
             <li>
-              <a href="/json-diff/#diff-counters" className="footer-link-btn" onClick={(e) => handleNav('diff', 'diff-counters', e)}>
-                Real-Time Diff Change Counters
+              <a href="/json-diff/#whitespace-diff" className="footer-link-btn" onClick={(e) => handleNav('diff', 'whitespace-diff', e)}>
+                Whitespace-Agnostic Diffing
               </a>
             </li>
             <li>
-              <a href="/json-diff/#swap-diff" className="footer-link-btn" onClick={(e) => handleNav('diff', 'swap-diff', e)}>
-                Swap Comparison Editors
+              <a href="/json-diff/#export-diff" className="footer-link-btn" onClick={(e) => handleNav('diff', 'export-diff', e)}>
+                Export Unified .diff Patch
               </a>
             </li>
           </ul>
@@ -139,41 +119,36 @@ export const Footer: React.FC<FooterProps> = ({ navigateTo }) => {
           <h3 className="footer-col-title">Tree Visualizer</h3>
           <ul className="footer-col-list">
             <li>
-              <a href="/json-tree" className="footer-link-btn" onClick={(e) => handleNav('tree', undefined, e)}>
-                JSON Tree Viewer
-              </a>
-            </li>
-            <li>
               <a href="/json-tree/#tree-explorer" className="footer-link-btn" onClick={(e) => handleNav('tree', 'tree-explorer', e)}>
-                Collapsible Hierarchy Explorer
+                Interactive Hierarchy Tree
               </a>
             </li>
             <li>
-              <a href="/json-tree/#jsonpath-filter" className="footer-link-btn" onClick={(e) => handleNav('tree', 'jsonpath-filter', e)}>
-                JSONPath Search &amp; Filter
+              <a href="/json-tree/#jsonpath-query" className="footer-link-btn" onClick={(e) => handleNav('tree', 'jsonpath-query', e)}>
+                JSONPath Expression Evaluator
               </a>
             </li>
             <li>
-              <a href="/json-tree/#node-path-extractor" className="footer-link-btn" onClick={(e) => handleNav('tree', 'node-path-extractor', e)}>
-                One-Click Node Path Extractor
-              </a>
-            </li>
-            <li>
-              <a href="/json-tree/#type-inspector" className="footer-link-btn" onClick={(e) => handleNav('tree', 'type-inspector', e)}>
+              <a href="/json-tree/#type-badges" className="footer-link-btn" onClick={(e) => handleNav('tree', 'type-badges', e)}>
                 Color-Coded Type Inspector
               </a>
             </li>
             <li>
+              <a href="/json-tree/#path-copy" className="footer-link-btn" onClick={(e) => handleNav('tree', 'path-copy', e)}>
+                1-Click Node Path Extractor
+              </a>
+            </li>
+            <li>
               <a href="/json-tree/#split-tree" className="footer-link-btn" onClick={(e) => handleNav('tree', 'split-tree', e)}>
-                Dual Code &amp; Tree Split View
+                Code &amp; Tree Synchronized Split
               </a>
             </li>
           </ul>
         </div>
 
-        {/* Column 5: Guides & FAQs */}
+        {/* Column 5: Guides & Resources */}
         <div className="footer-col">
-          <h3 className="footer-col-title">Guides &amp; Overview</h3>
+          <h3 className="footer-col-title">Guides &amp; Resources</h3>
           <ul className="footer-col-list">
             <li>
               <a href="#how-to" className="footer-link-btn" onClick={(e) => { e.preventDefault(); document.getElementById('how-to')?.scrollIntoView({ behavior: 'smooth' }); }}>
@@ -181,13 +156,13 @@ export const Footer: React.FC<FooterProps> = ({ navigateTo }) => {
               </a>
             </li>
             <li>
-              <a href="#how-to" className="footer-link-btn" onClick={(e) => { e.preventDefault(); navigateTo('diff'); document.getElementById('how-to')?.scrollIntoView({ behavior: 'smooth' }); }}>
+              <a href="#how-to" className="footer-link-btn" onClick={(e) => { e.preventDefault(); document.getElementById('how-to')?.scrollIntoView({ behavior: 'smooth' }); }}>
                 How to Compare JSON Payloads
               </a>
             </li>
             <li>
-              <a href="#how-to" className="footer-link-btn" onClick={(e) => { e.preventDefault(); navigateTo('tree'); document.getElementById('how-to')?.scrollIntoView({ behavior: 'smooth' }); }}>
-                How to Query JSON with JSONPath
+              <a href="#features" className="footer-link-btn" onClick={(e) => { e.preventDefault(); document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' }); }}>
+                Rust WebAssembly Engine Specs
               </a>
             </li>
             <li>
@@ -198,6 +173,17 @@ export const Footer: React.FC<FooterProps> = ({ navigateTo }) => {
             <li>
               <a href="#faqs" className="footer-link-btn" onClick={(e) => { e.preventDefault(); document.getElementById('faqs')?.scrollIntoView({ behavior: 'smooth' }); }}>
                 Frequently Asked Questions
+              </a>
+            </li>
+            <li>
+              <a
+                href="https://github.com/vkmrishad/json-tools"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="footer-link-btn"
+                style={{ display: 'inline-flex', alignItems: 'center', gap: 6, marginTop: 4, fontWeight: 600 }}
+              >
+                <Github size={13} /> GitHub Repository
               </a>
             </li>
           </ul>
@@ -225,8 +211,21 @@ export const Footer: React.FC<FooterProps> = ({ navigateTo }) => {
           <span>100% Client-Side In-Browser Execution · Zero Server Uploads</span>
         </div>
 
-        <div className="footer-copyright">
-          <span>© {new Date().getFullYear()} JSONTools. All processing happens locally in your browser.</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+          <a
+            href="https://github.com/vkmrishad/json-tools"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="footer-link-btn"
+            style={{ display: 'inline-flex', alignItems: 'center', gap: 5, color: 'var(--text-muted)' }}
+            title="Star on GitHub"
+          >
+            <Github size={14} /> <span>GitHub</span>
+          </a>
+
+          <div className="footer-copyright">
+            <span>© {new Date().getFullYear()} JSONTools.</span>
+          </div>
         </div>
       </div>
     </footer>

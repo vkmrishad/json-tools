@@ -1,5 +1,5 @@
 import React from 'react';
-import { Braces, GitCompare, Sun, Moon, RefreshCw } from 'lucide-react';
+import { Braces, GitCompare, Sun, Moon, RefreshCw, Github } from 'lucide-react';
 
 export type ToolTab = 'formatter' | 'diff' | 'tree' | 'converter';
 
@@ -72,6 +72,17 @@ export const Header: React.FC<HeaderProps> = ({ activeTab, navigateTo, theme, to
       </div>
 
       <div className="nav-actions">
+        <a
+          href="https://github.com/vkmrishad/json-tools"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="theme-toggle-btn"
+          title="View Source on GitHub"
+          aria-label="GitHub Repository"
+        >
+          <Github size={17} />
+        </a>
+
         <button
           className="theme-toggle-btn"
           onClick={toggleTheme}
