@@ -242,16 +242,6 @@ export const DiffChecker: React.FC<DiffCheckerProps> = ({ theme, showToast }) =>
     e.target.value = '';
   };
 
-  const handleLoadSample = () => {
-    setLeftValue(SAMPLE_ORIGINAL);
-    setRightValue(SAMPLE_MODIFIED);
-    setDiffOriginal(SAMPLE_ORIGINAL);
-    setDiffModified(SAMPLE_MODIFIED);
-    localStorage.setItem('jsontools-diff-left', SAMPLE_ORIGINAL);
-    localStorage.setItem('jsontools-diff-right', SAMPLE_MODIFIED);
-    showToast('Sample dataset loaded!');
-  };
-
   const handleExportDiff = () => {
     const content = `--- Original\n+++ Changed\n\n${diffOriginal}\n\n=== MODIFIED ===\n\n${diffModified}`;
     const blob = new Blob([content], { type: 'text/plain' });
