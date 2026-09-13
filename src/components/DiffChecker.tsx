@@ -2,7 +2,8 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Editor, { DiffEditor } from '@monaco-editor/react';
 import {
   AlignLeft, Trash2, Upload, AlertCircle, Loader2, Split,
-  ArrowLeftRight, Copy, Download, MinusCircle, PlusCircle, FileText, Check, GitCompare
+  ArrowLeftRight, Copy, Download, MinusCircle, PlusCircle, FileText, Check, GitCompare,
+  Maximize2, Minimize2
 } from 'lucide-react';
 
 interface DiffCheckerProps {
@@ -85,7 +86,7 @@ export const DiffChecker: React.FC<DiffCheckerProps> = ({ theme, showToast }) =>
 
   const [renderSideBySide, setRenderSideBySide] = useState(true);
   const [ignoreWhitespace, setIgnoreWhitespace] = useState(false);
-  const [lineWrap, setLineWrap] = useState(true);
+  const [lineWrap, setLineWrap] = useState(false);
 
   const [leftLoading, setLeftLoading] = useState(false);
   const [rightLoading, setRightLoading] = useState(false);
@@ -106,6 +107,7 @@ export const DiffChecker: React.FC<DiffCheckerProps> = ({ theme, showToast }) =>
   const leftFileRef = useRef<HTMLInputElement>(null);
   const rightFileRef = useRef<HTMLInputElement>(null);
   const diffContainerRef = useRef<HTMLDivElement>(null);
+  const [diffFullscreen, setDiffFullscreen] = useState(false);
 
   // Sync with inner URL hashes
   useEffect(() => {
@@ -264,13 +266,32 @@ export const DiffChecker: React.FC<DiffCheckerProps> = ({ theme, showToast }) =>
   const charAddPct = stats.modChars > 0 ? ((stats.charsAdded / stats.modChars) * 100).toFixed(1) : '0.0';
   const charRemPct = stats.origChars > 0 ? ((stats.charsRemoved / stats.origChars) * 100).toFixed(1) : '0.0';
 
+  // Compute line count so diff editor takes full content height without inner scroll
+  const maxDiffLines = Math.max(
+    (diffOriginal.match(/\n/g) || []).length + 1,
+    (diffModified.match(/\n/g) || []).length + 1
+  );
+  const autoDiffHeight = Math.max(maxDiffLines * 20 + 50, 320);
+
   return (
     <div className="tab-content diff-layout" style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
       {/* ════════════ TOP SECTION: DIFF VIEWER (SHOWN ONLY WHEN DIFF IS COMPUTED) ════════════ */}
       {hasDiffContent && (
-        <div ref={diffContainerRef} className="glass-panel" style={{ minHeight: 380, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+        <div
+          ref={diffContainerRef}
+          className={`glass-panel ${diffFullscreen ? 'pane-fullscreen' : ''}`}
+          style={{
+            minHeight: diffFullscreen ? '100vh' : 'auto',
+            height: diffFullscreen ? 'calc(100vh - 65px)' : 'auto',
+            display: 'flex',
+            flexDirection: 'column',
+            overflow: 'hidden',
+            border: '1px solid var(--border-color)',
+            borderRadius: 'var(--radius-lg)'
+          }}
+        >
         {/* Diff Header Bar (matching diffchecker.com with interactive stats popover) */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 16px', background: 'var(--bg-tertiary)', borderBottom: '1px solid var(--border-color)', fontSize: 12, flexWrap: 'wrap', gap: 10 }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 14px', background: 'var(--bg-tertiary)', borderBottom: '1px solid var(--border-color)', fontSize: 12, flexWrap: 'wrap', gap: 8, flexShrink: 0 }}>
           {/* Left: Original Text or Stats */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, position: 'relative' }}>
             <span style={{ fontWeight: 700, color: 'var(--text-secondary)' }}>Original text</span>
@@ -357,7 +378,7 @@ export const DiffChecker: React.FC<DiffCheckerProps> = ({ theme, showToast }) =>
           </div>
 
           {/* Center Controls & Actions */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
             <button
               onClick={handleSwap}
               className="icon-btn"
@@ -430,7 +451,7 @@ export const DiffChecker: React.FC<DiffCheckerProps> = ({ theme, showToast }) =>
             </button>
           </div>
 
-          {/* Right: Changed Text or Stats */}
+          {/* Right: Changed Text or Stats & Fullscreen toggle */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, position: 'relative' }}>
             {hasDiffContent && (
               <>
@@ -513,6 +534,15 @@ export const DiffChecker: React.FC<DiffCheckerProps> = ({ theme, showToast }) =>
             )}
 
             <span style={{ fontWeight: 700, color: 'var(--text-secondary)' }}>Changed text</span>
+
+            <button
+              className="pane-icon-btn"
+              onClick={() => setDiffFullscreen(!diffFullscreen)}
+              title={diffFullscreen ? 'Exit Fullscreen' : 'Fullscreen / Expand Diff Viewer'}
+              style={{ width: 28, height: 28, marginLeft: 2 }}
+            >
+              {diffFullscreen ? <Minimize2 size={14} /> : <Maximize2 size={14} />}
+            </button>
           </div>
         </div>
 
@@ -523,8 +553,8 @@ export const DiffChecker: React.FC<DiffCheckerProps> = ({ theme, showToast }) =>
           </div>
         )}
 
-        {/* Monaco Diff Viewer */}
-        <div style={{ height: 380, position: 'relative' }}>
+        {/* Monaco Diff Viewer - Expanded to full height */}
+        <div style={{ height: diffFullscreen ? 'calc(100vh - 65px)' : autoDiffHeight, minHeight: 320, position: 'relative' }}>
           <DiffEditor
             height="100%"
             language="json"
@@ -538,7 +568,21 @@ export const DiffChecker: React.FC<DiffCheckerProps> = ({ theme, showToast }) =>
               fontFamily: 'var(--font-mono)',
               readOnly: true,
               diffWordWrap: lineWrap ? 'on' : 'off',
-              scrollbar: { verticalScrollbarSize: 7 }
+              automaticLayout: true,
+              scrollBeyondLastLine: false,
+              renderOverviewRuler: false,
+              minimap: { enabled: false },
+              lineNumbersMinChars: 3,
+              glyphMargin: false,
+              enableSplitViewResizing: true,
+              scrollbar: {
+                vertical: 'hidden',
+                horizontal: 'auto',
+                verticalScrollbarSize: 0,
+                horizontalScrollbarSize: 8,
+                handleMouseWheel: false,
+                alwaysConsumeMouseWheel: false
+              }
             }}
             loading={<div className="monaco-loader"><div className="spinner" /><span>Computing diff…</span></div>}
           />
@@ -547,7 +591,13 @@ export const DiffChecker: React.FC<DiffCheckerProps> = ({ theme, showToast }) =>
       )}
 
       {/* ════════════ BOTTOM SECTION: EDIT INPUT PANES ════════════ */}
-      <div className="diff-editors-grid" style={{ minHeight: 300 }}>
+      <div
+        className="diff-editors-grid"
+        style={{
+          height: hasDiffContent ? 260 : 'calc(100vh - 210px)',
+          minHeight: hasDiffContent ? 220 : 480
+        }}
+      >
         {/* Left: Original Text */}
         <div className="glass-panel dual-editor-pane">
           <div className="editor-card-header">
@@ -578,7 +628,7 @@ export const DiffChecker: React.FC<DiffCheckerProps> = ({ theme, showToast }) =>
               <input type="file" ref={leftFileRef} onChange={(e) => handleFileUpload(e, 'left')} accept=".json,.txt,text/*" style={{ display: 'none' }} />
             </div>
           </div>
-          <div className="editor-body" style={{ height: 260 }}>
+          <div className="editor-body" style={{ flex: 1, minHeight: 180, height: hasDiffContent ? 210 : 'calc(100vh - 270px)' }}>
             <Editor
               height="100%"
               language="json"
@@ -625,7 +675,7 @@ export const DiffChecker: React.FC<DiffCheckerProps> = ({ theme, showToast }) =>
               <input type="file" ref={rightFileRef} onChange={(e) => handleFileUpload(e, 'right')} accept=".json,.txt,text/*" style={{ display: 'none' }} />
             </div>
           </div>
-          <div className="editor-body" style={{ height: 260 }}>
+          <div className="editor-body" style={{ flex: 1, minHeight: 180, height: hasDiffContent ? 210 : 'calc(100vh - 270px)' }}>
             <Editor
               height="100%"
               language="json"

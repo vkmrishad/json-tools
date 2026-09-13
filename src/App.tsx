@@ -4,7 +4,6 @@ import { Formatter } from './components/Formatter';
 import { DiffChecker } from './components/DiffChecker';
 import { TreeTab } from './components/TreeTab';
 import { Converter } from './components/Converter';
-import { AdUnit } from './components/AdUnit';
 import { SeoContent } from './components/SeoContent';
 import { Footer } from './components/Footer';
 import { updatePageSeo, getSeoMetadata } from './utils/seo';
@@ -103,9 +102,6 @@ export const App: React.FC = () => {
 
       <Header activeTab={activeTab} navigateTo={navigateTo} theme={theme} toggleTheme={toggleTheme} />
 
-      {/* Top Header Ad (728x90) */}
-      <AdUnit position="header" />
-
       <main id="workspace" style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 10, marginTop: 8 }}>
         {/* Tool content with path and anchor identifiers */}
         {activeTab === 'formatter' && (
@@ -132,11 +128,6 @@ export const App: React.FC = () => {
 
       {/* Structured SEO, How-It-Works, and FAQ Sections */}
       <SeoContent activeTab={activeTab} />
-
-      {/* Footer Ad (728x90) */}
-      <div style={{ marginTop: 24, marginBottom: 12 }}>
-        <AdUnit position="footer" />
-      </div>
 
       {/* Comprehensive 5-Column SEO Links Footer */}
       <Footer navigateTo={navigateTo} />

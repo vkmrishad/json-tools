@@ -4,7 +4,6 @@ import {
   Check, AlertCircle, Search, X, Code2, Eye, Globe
 } from 'lucide-react';
 import { TreeViewer } from './TreeViewer';
-import { AdUnit } from './AdUnit';
 import {
   FormatIndentIcon,
   MinifyLinesIcon,
@@ -1039,10 +1038,7 @@ export const Formatter: React.FC<FormatterProps> = ({ theme, showToast }) => {
             Format / Beautify
           </button>
 
-          {/* 6. Clean Center Ad Slot (160x160) */}
-          <AdUnit position="middle" />
-
-          {/* 7. Minify / Compact */}
+          {/* 6. Minify / Compact */}
           <button
             className="btn btn-secondary btn-sm"
             onClick={() => handleCenterTransform('minify')}
